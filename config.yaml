@@ -1,0 +1,11 @@
+# Data source
+data_source_url: 'https://ketqua1.net/so-ket-qua'
+data_source_cnt: 300
+data_source code: 'mb'
+data_source_dow: 7
+data_limit: 30 # Year to crawl
+data_update_time: '00:17:00'
+
+# Kafka
+kafka_server: 'kafka:9092'
+kafka_topic: 'lottery_data'
