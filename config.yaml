@@ -9,3 +9,8 @@ data_update_time: '00:17:00'
 # Kafka
 kafka_server: 'kafka:9092'
 kafka_topic: 'lottery_data'
+
+# HDFS
+hdfs_server: 'http://hdfs-namenode:50070'
+hdfs_dir: '/data'
+hdfs_user: 'hadoopuser'

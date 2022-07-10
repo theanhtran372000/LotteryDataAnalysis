@@ -2,14 +2,18 @@
 # Sau đó gửi dữ liệu tới Kafka
 
 # Import libs
+import sys
+import os
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
 import requests
 import bs4
 import yaml
 import time
-import json
 import schedule
 from datetime import datetime, timedelta
 from kafka import KafkaProducer
+from utils import *
 
 
 # Load config file
@@ -25,18 +29,10 @@ with open('config.yaml', 'r') as f:
     LIMIT = data['data_limit']              # Số năm lấy dữ liệu
     UPDATE_TIME = data['data_update_time']  # Thời gian server update dữ liệu
     
-    # Kafka topic
+    # Kafka
     TOPIC = data['kafka_topic']             # Topic gửi dữ liệu tới kafka
-    SERVER = data['kafka_server']           # Địa chỉ của kafka server
+    KAFKA_SERVER = data['kafka_server']           # Địa chỉ của kafka server
 
-
-# Chuyển thời gian thành dạng string phù hợp với format của request
-def to_string(date):
-    return date.strftime("%d-%m-%Y")
-
-# Hàm chuyển dữ liệu sang dạng serial (chuỗi) cho producer
-def json_serializer(data):
-    return json.dumps(data).encode('utf-8')
 
 # Hàm trích xuất dữ liệu từ html
 def extract_data(soup):
@@ -95,7 +91,7 @@ if __name__ == '__main__':
     
     # Kafka producer
     producer = KafkaProducer(
-        bootstrap_servers=[SERVER],
+        bootstrap_servers=[KAFKA_SERVER],
         value_serializer=json_serializer
     )
     
@@ -124,11 +120,11 @@ if __name__ == '__main__':
         
         print('Read {} samples!'.format(len(prizes)))
         
-        print('Sending data to server {} - topic {} ...'.format(SERVER, TOPIC))
-        for d, p in zip(dates, prizes):
+        print('Sending data to server {} - topic {} ...'.format(KAFKA_SERVER, TOPIC))
+        if len(prizes) > 0:
             data = {
-                'date': d,
-                'prize': p
+                'date': dates,
+                'jackpot': prizes
             }
             
             producer.send(TOPIC, data)

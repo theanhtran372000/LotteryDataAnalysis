@@ -2,3 +2,4 @@ beautifulsoup4
 requests
 kafka-python
 schedule
+hdfs
