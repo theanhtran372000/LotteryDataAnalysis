@@ -3,3 +3,7 @@ requests
 kafka-python
 schedule
 hdfs
+pyspark
+pyyaml
+pandas
+streamlit

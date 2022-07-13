@@ -18,62 +18,43 @@ from utils import *
 
 # Load config file
 with open('config.yaml', 'r') as f:
-    data = yaml.load(f, Loader=yaml.loader.SafeLoader)
+    config = yaml.load(f, Loader=yaml.loader.SafeLoader)
     
     # Lấy dữ liệu config
     # Data source
-    URL = data['data_source_url']           # Đường dẫn tới trang web chứa dữ liệu
-    COUNT = data['data_source_cnt']         # Số bản ghi đọc trong một lần gửi Request
-    CODE = data['data_source_cnt']          # Mã sổ số muốn crawl
-    DOW = data['data_source_dow']           # Số ngày trong tuần muốn lấy 1 lúc
-    LIMIT = data['data_limit']              # Số năm lấy dữ liệu
-    UPDATE_TIME = data['data_update_time']  # Thời gian server update dữ liệu
+    URL = config['data_source_url']           # Đường dẫn tới trang web chứa dữ liệu
+    COUNT = config['data_source_cnt']         # Số bản ghi đọc trong một lần gửi Request
+    CODE = config['data_source_cnt']          # Mã sổ số muốn crawl
+    DOW = config['data_source_dow']           # Số ngày trong tuần muốn lấy 1 lúc
+    LIMIT = config['data_limit']              # Số năm lấy dữ liệu
+    UPDATE_TIME = config['data_update_time']  # Thời gian server update dữ liệu
     
     # Kafka
-    TOPIC = data['kafka_topic']             # Topic gửi dữ liệu tới kafka
-    KAFKA_SERVER = data['kafka_server']           # Địa chỉ của kafka server
-
-
-# Hàm trích xuất dữ liệu từ html
-def extract_data(soup):
-    # Get date
-    dates = soup.findAll('span', {'id': 'result_date'})
-    dates = [d.text.split(' ')[-1] for d in dates]
-    
-    # Get prize
-    prizes = soup.findAll('div', {'id': 'rs_0_0'})
-    prizes = [p.text for p in prizes]
-    
-    return dates, prizes
+    TOPIC = config['kafka_topic']             # Topic gửi dữ liệu tới kafka
+    KAFKA_SERVER = config['kafka_server']           # Địa chỉ của kafka server
 
 # Lấy 1 mẫu dữ liệu mới mỗi ngày
 def get_new_data(producer):
     now = datetime.now()
-    data = {
+    payload = {
         'code': CODE,
         'date': to_string(now),
         'count': 1,
         'dow': DOW
     }
     
-    response = requests.post(URL, data=data, headers={'User-Agent': 'Mozilla/5.0'})
+    response = requests.post(URL, data=payload, headers={'User-Agent': 'Mozilla/5.0'})
     
     # Parse dữ liệu vào BeautifulSoup
     soup = bs4.BeautifulSoup(response.text, 'html.parser')
     
     # Extract data
-    dates, prizes = extract_data(soup)
+    data = extract_data(soup)[0]
     
-    if dates[0] == now.strftime('%d:%m:%Y'):
-        data = {
-            'date': dates[0],
-            'prize': prizes[0]
-        }
-        
-        print(data)
-        
+    if data['ngay'] == now.strftime('%d:%m:%Y'):
         producer.send(TOPIC, data)
         print('Read and sent new data at {}!'.format(str(now)))
+        print('Data:', data)
     else:
         print('There were no new data at {}!'.format(str(now)))
 
@@ -87,7 +68,7 @@ if __name__ == '__main__':
     if now.strftime('%H:%M:$S') < UPDATE_TIME:
         now = now - timedelta(days=1)
     
-    limit = now - timedelta(days = LIMIT * 365)
+    limit = now - timedelta(days = LIMIT * 365) # Số năm đọc dữ liệu
     
     # Kafka producer
     producer = KafkaProducer(
@@ -104,30 +85,28 @@ if __name__ == '__main__':
         
         print('-' * 20)
         print('Reading from {} to {} ...'.format(to_string(now), to_string(now - timedelta(days=COUNT - 1))))
-        data = {
+        payload = {
             'code': CODE,
             'date': to_string(now),
             'count': COUNT,
             'dow': DOW
         }
-        response = requests.post(URL, data=data, headers={'User-Agent': 'Mozilla/5.0'})
+        response = requests.post(URL, data=payload, headers={'User-Agent': 'Mozilla/5.0'})
         
         # Parse dữ liệu vào BeautifulSoup
         soup = bs4.BeautifulSoup(response.text, 'html.parser')
         
         # Extract data
-        dates, prizes = extract_data(soup)
+        data_list = extract_data(soup)
+        print('Read {} samples!'.format(len(data_list)))
         
-        print('Read {} samples!'.format(len(prizes)))
-        
+        # Gửi dữ liệu tới Kafka Server
         print('Sending data to server {} - topic {} ...'.format(KAFKA_SERVER, TOPIC))
-        if len(prizes) > 0:
-            data = {
-                'date': dates,
-                'jackpot': prizes
-            }
-            
-            producer.send(TOPIC, data)
+        
+        # Nếu có dữ liệu thì gửi
+        if len(data_list) > 0:
+            for d in data_list: # Gửi từng gói 1
+                producer.send(TOPIC, d)
         
         print('Finished after {:.2f}s!'.format(time.time() - start))
         print()

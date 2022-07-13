@@ -1,16 +1,17 @@
-# Data source
-data_source_url: 'https://ketqua1.net/so-ket-qua'
+data_limit: 30
+data_source code: mb
 data_source_cnt: 300
-data_source code: 'mb'
 data_source_dow: 7
-data_limit: 30 # Year to crawl
-data_update_time: '00:17:00'
-
-# Kafka
-kafka_server: 'kafka:9092'
-kafka_topic: 'lottery_data'
-
-# HDFS
-hdfs_server: 'http://hdfs-namenode:50070'
-hdfs_dir: '/data'
-hdfs_user: 'hadoopuser'
+data_source_url: http://ketqua1.net/so-ket-qua
+data_update_time: '19:00:00'
+hdfs_count: 8226
+hdfs_dir: /data
+hdfs_host: hdfs-namenode
+hdfs_port: 54310
+hdfs_user: hadoopuser
+http_port: 50070
+kafka_server: kafka:9092
+kafka_topic: lottery_data
+spark_host: hdfs-namenode
+spark_loop: 5
+spark_port: 7077
