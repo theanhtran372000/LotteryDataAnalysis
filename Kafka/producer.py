@@ -121,6 +121,7 @@ if __name__ == '__main__':
     print('-' * 20)
     print('Start waiting new data ...')
     
+    # loop update
     while True:
         # Check for schedule
         schedule.run_pending()

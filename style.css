@@ -2,14 +2,10 @@
 .e1tzin5v2{
     text-align: center;
     padding: 10px 20px;
-    background-color: white;
+    background-color: #f3f3f3;
     border-radius: 3px;
-    box-shadow: 1px 1px 2px #aaa;
-    transition: all .3s;
 }
 
-.e1tzin5v2:hover{
-    background-color: #aaa;
-    box-shadow: 0;
-    color: white;
+.e16fv1kl0 svg{
+    display: none;
 }

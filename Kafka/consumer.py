@@ -48,10 +48,6 @@ if __name__ == '__main__':
         
     # Init save path
     path = HDFS_DIR + '/data.csv' # saved path
-    # if not hdfs_exists(hdfs_client, path):
-    #     df = pd.DataFrame([], columns=['ngay', 'dacbiet'])
-    #     with hdfs_client.write(path, encoding = 'utf-8') as writer:
-    #         df.to_csv(writer, index=False)
     
     print('Start the consumer listening at {} topic {}\n'.format(KAFKA_SERVER, TOPIC))
     for msg in consumer:
