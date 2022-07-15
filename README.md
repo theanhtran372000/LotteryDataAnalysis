@@ -1,4 +1,4 @@
-# Phân tích dữ liệu lô đề miền Bắc
+# Phân tích dữ liệu xổ số miền Bắc
 
 Bài tập lớn môn Lưu trữ và xử lý dữ liệu lớn của **Nhóm 1** do **TS. Nguyễn Hữu Đức** hướng dẫn.
 
