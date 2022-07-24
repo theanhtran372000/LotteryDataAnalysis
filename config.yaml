@@ -4,7 +4,7 @@ data_source_cnt: 300
 data_source_dow: 7
 data_source_url: http://ketqua1.net/so-ket-qua
 data_update_time: '19:00:00'
-hdfs_count: 8230
+hdfs_count: 8237
 hdfs_dir: /data
 hdfs_host: hdfs-namenode
 hdfs_port: 54310
